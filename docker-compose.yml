@@ -41,11 +41,11 @@ services:
     environment:
       - PORT=3001
       - API_KEY_INTERNA=dev-key-local-123
-      - Asc NODE_ENV=development
+      - NODE_ENV=development
     volumes:
       - api_data:/app/data
     networks:
-      - portfolio Asc -net
+      - portfolio-net
 
 volumes:
   n8n_data:
