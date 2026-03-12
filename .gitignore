@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Docker
+n8n_data/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Babel/VSCode backups
+babel.json
+*.backup*
+
+# Temp
+*.tmp
+
