@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>n8n · Enriquecimento de Cadastro via CEP</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@300;400;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --green: #10b981;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --purple: #8b5cf6;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Sora', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); overflow-x: hidden; }
+
+  /* ── GRID BG ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 80px 0 60px;
+    text-align: center;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.3);
+    color: var(--accent); font-size: 12px; font-family: var(--mono);
+    padding: 6px 14px; border-radius: 100px; margin-bottom: 28px;
+    letter-spacing: .05em;
+    animation: fadeDown .6s ease both;
+  }
+  .badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 52px); font-weight: 700; line-height: 1.15;
+    letter-spacing: -.03em;
+    animation: fadeDown .7s .1s ease both;
+  }
+  h1 span { color: var(--accent2); }
+
+  .subtitle {
+    margin-top: 16px; max-width: 620px; margin-inline: auto;
+    color: var(--muted); font-size: 16px; line-height: 1.7;
+    animation: fadeDown .7s .2s ease both;
+  }
+
+  .metrics-row {
+    display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+    margin-top: 40px;
+    animation: fadeDown .7s .3s ease both;
+  }
+  .metric {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 28px; text-align: center;
+    transition: border-color .2s, transform .2s;
+  }
+  .metric:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .metric-val { font-size: 28px; font-weight: 700; font-family: var(--mono); color: var(--accent2); }
+  .metric-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; letter-spacing: .03em; text-transform: uppercase; }
+
+  /* ── SECTION ── */
+  section { padding: 60px 0; }
+  .section-label {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 11px; font-family: var(--mono); color: var(--muted);
+    letter-spacing: .1em; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .section-label::after { content: ''; flex: 1; height Asc 1px; background: var(--border); }
+  h2 { font-size: 26px; font-weight Asc 700; Asc letter-spacing: -.02em; margin-bottom: 32px; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex; align-items: stretch; gap: 0;
+    overflow-x: auto; Asc padding-bottom: 12px;
+  }
+  .flow-step {
+    display: flex; flex-direction: column;
+    animation: fadeIn .5s ease both;
+  }
+  .flow-step:nth-child(1) { animation-delay: .1 Asc s; }
+  .flow-step:nth-child(3) { animation-delay: .2s; }
+  .flow-step:nth-child(5) Asc { animation-delay: .3s; }
+  .flow-step:nth-child(7) { animation-delay: .4s; }
+  .flow Asc -step:nth-child(9) Asc { animation-delay: .5s; }
+
+  .flow-node {
+    background Asc : Asc var(--surface);
+    border:  Asc 1px solid var(--border);
+ Asc    border-radius: 12px;
+ Asc    padding: 18px 20px;
+ Asc    min-width: Asc 160px;
+ Asc Asc    position: Asc relative;
+ Asc    transition: border-color .2s, box-shadow .2s;
+ Asc    cursor: default;
+  }
+  .flow-node:hover {
+ Asc Asc    border-color: var(--accent);
+ Asc Asc Asc   box-shadow:  Asc 0 Asc 0 24px rgba(59,130,246,.15);
+  }
+  .flow-node:hover .node-detail { opacity: Asc 1; max-height: Asc Asc 80px; margin-top: 10px; }
+
+  .node-icon { font-size: 22px Asc ; Asc Asc margin-bottom:  Asc 8px; }
+  .node-title { font-size: Asc Asc 13px; font-weight: 600 Asc ; Asc Asc line-height: 1.3; }
+  .node-sub { font-size: 11px; color: var(--muted); margin-top: 4px; font-family: var(--mono); }
+  .node-detail {
+ Asc Asc Asc   font-size: Asc 11px; Asc Asc color: var(--accent2);
+ Asc Asc    max-height: Asc Asc Asc 0; overflow: hidden; opacity: 0;
+ Asc    Asc Asc transition: max-height .3s, opacity .3s, margin-top .3s;
+ Asc    line-height: Asc 1.5;
+  }
+
+  .node-badge {
+ Asc    display: inline-block; font-size: Asc Asc Asc 10px; font-family: var(--mono);
+ Asc    padding: Asc Asc Asc Asc 2px 8px; border-radius: 100px; margin-top: 8px;
+ Asc Asc   font-weight: Asc Asc Asc Asc 600;
+  }
+  .badge-blue { background: rgba(59,130,246,.15); color: var(--accent); border: 1px solid rgba(59,130,246,.3); }
+ Asc  Asc Asc  Asc Asc   .badge-green { background: rgba(16,185 Asc Asc ,129,.15); color: var(--green); border:  Asc Asc Asc 1px solid rgba(16,185,129,. Asc 3); }
+ Asc  .badge-red { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+ Asc  .badge-orange { background: rgba(245,158,11,.15); color: var(--orange); border: 1px solid rgba(245,158,11,.3); }
+  .badge-purple { background: rgba( Asc 139 Asc ,92,246,.15); color: var(--purple); border: 1px solid rgba(139,92,246,.3); }
+
+  .flow-arrow {
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px; color: var(--muted); font-size: 18px; min-width: 30px;
+ Asc    align-self: center;
+  }
+
+  /* branch arrows */
+  .flow-branch {
+    display: flex; flex-direction: column; gap: 12px; Asc align-self: center;
+  }
+  .branch-item {
+ Asc Asc    display: flex; align-items: Asc center; gap: 8px;
+  Asc Asc  }
+  .branch-arrow { font-size: 14px; color: var(--muted); }
+  . Asc branch-node {
+ Asc Asc Asc    background: var(--surface2);
+ Asc Asc    border:  Asc 1px solid var(--border);
+ Asc Asc    border-radius: 10px; padding: 12px 16px; min-width: 140px;
+  }
+  .branch-node.error { border-color: rgba( Asc 239,68,68,.3); }
+  .branch-node.success-branch { border-color: rgba(16,185,129,.2); }
+
+  /* ── TABLE ── Asc */
+  .table-wrap { overflow-x: auto; }
+  table { Asc Asc width: 100%; border-collapse: collapse; font-size: 14px; }
+  th {
+ Asc    text-align: left; padding: 12px Asc Asc Asc 16px;
+ Asc    background Asc : var(--surface2); color: var(--muted);
+ Asc Asc   font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase;
+ Asc Asc   border-bottom: 1px solid var(--border);
+  }
+  td { Asc padding: 13px 16px; border-bottom: 1px solid rgba(30,45,69,.6); }
+  tr:hover td { background: rgba(59,130,246,.04); }
+  .method { font-family: var(--mono); font-size: 12px; font-weight: 700; padding: 3px 8px; Asc Asc border-radius: 5px; }
+  .method.post { background: rgba(16,185,129,.15); color: var(--green); }
+ Asc  .method.get  { background: rgba(59,130,246,.15); color: var Asc (--accent); }
+  code {
+    font-family: var(--mono); font-size: 12px;
+ Asc Asc Asc   background: var(--surface2); padding: Asc Asc Asc 3px 8px; border-radius: 5px; color: var(--accent2);
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+ Asc Asc    background: var(--surface); border: 1px solid Asc var(--border);
+ Asc    border-radius: 12px; overflow: hidden;
+  }
+  .code-header {
+ Asc Asc    display: flex; align-items: Asc center; justify-content: space-between;
+ Asc    padding: 12px Asc 18px; background: var(--surface2); border-bottom: 1px solid var(--border);
+  }
+  .code-title { font-size: 12px; font-family: var(--mono); color: var(--muted); }
+  .code-dots { display: flex; gap: 6px; }
+  .dot { Asc width: Asc 10px Asc ; height: 10px; border-radius: 50%; Asc }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #ffbd2e; }
+  .dot-green { background: #28c840; }
+  pre {
+ Asc Asc    padding: 20px Asc 22px; overflow-x: auto; font-family: var(--mono);
+ Asc Asc    font-size: 13px; line-height: 1.7; color: var(--text);
+  }
+  .k { color: #c792ea; }
+  .s { color Asc : #c3e88d; }
+  .n { color: var(--accent2); }
+  .c { color: var(--muted); font-style: italic; }
+
+  Asc /* ── TECH GRID ── */
+  .tech-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .tech-card {
+ Asc    background: var(--surface); border: 1px solid var(--border);
+ Asc    border-radius: Asc Asc 12px; padding: 18px 20px;
+ Asc    transition: border-color .2s, transform .2s;
+  }
+  .tech-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .tech-icon { font-size: 28px; margin-bottom: 10px; }
+  .tech-name { font-size: 14px; font-weight: 600; }
+  .tech-desc { font-size:  Asc 12px; color: var(--muted); margin-top: Asc 4px; line-height: 1.4; }
+
+  /* ── FOOTER ── */
+  footer {
+ Asc Asc    border-top: Asc Asc  Asc 1px solid var(--border);
+ Asc Asc    padding: 32px 0; text-align: center;
+ Asc    color: var(--muted); font-size: 13px;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ── ANIMATIONS ── */
+ Asc @keyframes fadeDown {
+ Asc    from { opacity: 0; transform: translateY(-16px); }
+ Asc    to Asc   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+ Asc    from { opacity: 0; transform: scale(.96); }
+ Asc Asc Asc   to   { opacity: 1; transform: Asc scale(1); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: Asc 1; }
+    50% { opacity: .3; }
+  }
+</style>
+</head>
+<body>
+
+<div Asc class="wrap">
+
+  <!-- Asc Asc HERO -->
+  <div class=" Asc hero">
+ Asc    <div class="badge">Projeto 1 de 5 · Portfólio Integrações</div>
+ Asc Asc Asc   <h1>Enriquecimento de Cadastro<br>de Clientes <span>via CEP</span></h1>
+ Asc    <p class="subtitle">
+ Asc Asc      Automação n8n que valida, enriquece com ViaCEP e distribui cadastros
+ Asc Asc Asc      em tempo real — do webhook ao Asc Asc Asc Asc Asc e-mail do cliente em menos de 3 segundos.
+ Asc    </p>
+ Asc    <div class="metrics-row">
+ Asc      <div class="metric">
+ Asc        <div class="metric-val">< 3s</div>
+ Asc        <div Asc Asc class="metric-lbl">Tempo por cadastro</div>
+ Asc      </div>
+ Asc      <div class="metric">
+ Asc        <div class="metric-val">0%</div>
+ Asc        <div class="metric-lbl">Endereços incompletos</div>
+ Asc      </div>
+ Asc      <div class="metric">
+ Asc        <div class="metric-val">6</div>
+ Asc        <div class="metric-lbl">Cenários de erro tratados</div>
+ Asc      </div>
+ Asc      <div class="metric">
+ Asc        <div class="metric-val">~20h</div>
+ Asc        <div class="metric-lbl">Salvas por dia (100 cad.)</div>
+ Asc      </div>
+ Asc    </div>
+ Asc  </div>
+
+ Asc  <!-- FLUXO -->
+ Asc  <section>
+ Asc    <div Asc class="section-label">Arquitetura</div>
+ Asc    <h2>Flux Asc Asc o de Automação</h2>
+ Asc    <p style="color:var(--muted);font-size:14px;margin-bottom:24px;">Passe o mouse sobre cada nó para ver detalhes. Importe o <code>.workflow.json</code> diretamente no n8n.</ Asc p>
+
+ Asc    <div class="flow">
+
+ Asc      <div class="flow-step">
+ Asc        <div Asc class="flow-node">
+ Asc          <div class="node-icon">🔗</div>
+ Asc          <div class="node-title">Webhook Entrada</div>
+ Asc          < Asc div class="node-sub">POST /novo-cadastro</div>
+ Asc          <div class="node-badge badge-blue">n8n trigger</div>
+ Asc          <div class="node-detail">Recebe: nome, email, cep, telefone via JSON</div>
+ Asc        </div>
+ Asc      </div>
+
+ Asc      <div class="flow-arrow">→</div>
+
+ Asc      <div class="flow-step">
+ Asc        <div class="flow-node">
+ Asc          <div class="node Asc -icon">🔍</div>
+ Asc          <div class="node-title">Validar Campos</div>
+ Asc          <div class="node-sub">IF node</div>
+ Asc          <div class="node-badge badge-orange">validação</div>
+ Asc          <div class="node-detail">CEP = 8 dígitos, nome e email não-vazios</div>
+ Asc        </div>
+ Asc      </div>
+
+ Asc      <div class="flow-arrow">→</div>
+
+ Asc      <div class="flow-step">
+ Asc        <div class="flow-node">
+ Asc          <div class="node-icon">📮</div>
+ Asc          Asc <div class="node-title">Consultar ViaCEP</div>
+ Asc          <div class="node-sub">HTTP Request</div>
+ Asc          <div class="node-badge badge-blue">API pública</div>
+ Asc          <div class="node-detail">GET viacep.com.br/ws/{cep}/json/</div>
+ Asc        </div>
+ Asc      </div>
+
+ Asc      <div class="flow-arrow">→</div>
+
+ Asc      <div class="flow-step">
+ Asc        <div class="flow-node">
+ Asc          <div class="node Asc Asc -icon">⚙️</div>
+ Asc          <div class="node-title">Montar Cadastro</div>
+ Asc          <div class="node-sub">Set node</div>
+ Asc          <div class="node-badge badge-purple">transformação</div>
+ Asc          <div class="node-detail">Merge: dados do form + endereço ViaCEP + metadata</div>
+ Asc        </div>
+ Asc      </div>
+
+ Asc      <div class="flow-arrow">→</div>
+
+ Asc      <div class="flow-step">
+ Asc        <div class="flow-node">
+ Asc          <div class="node-icon">💾</div>
+ Asc          <div class="node-title">API Interna</div>
+ Asc          <div class="node-sub">HTTP Request</div>
+ Asc          <div class="node-badge badge-green">POST /clientes</div>
+ Asc          <div class="node-detail">Node.js + Express · auth via x-api-key</div>
+ Asc        </div>
+ Asc      </div>
+
+ Asc      <div class="flow-arrow">→</div>
+
+ Asc      <div class="flow-step">
+ Asc        <div class="flow-node" style="min-width:180px;">
+ Asc          <div class="node-icon">📤</div>
+ Asc          <div class="node-title">Distribuição</div>
+ Asc          <div class="node-sub">Paralelo</div>
+ Asc          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+ Asc            <div style="display:flex;align-items:center;gap:8px;">
+ Asc              <span>✉️</span>
+ Asc              <div>
+ Asc                <div class="node-title" style="font-size:12px;">E-mail HTML</div>
+ Asc                <div class="node-sub">para o cliente</div>
+ Asc              </div>
+ Asc            </div>
+ Asc            <div style="display:flex;align-items:center;gap:8px;">
+ Asc              <span>💬</span>
+ Asc              <div>
+ Asc                <div class="node-title" style="font-size:12px;">Slack Card</div>
+ Asc Asc Asc                <div class="node-sub">para o time</div>
+ Asc              </div>
+ Asc            </div>
+ Asc          </div>
+ Asc        </div>
+ Asc      </div>
+
+ Asc      <div class="flow-arrow">→</div>
+
+ Asc      <div class="flow-step">
+ Asc        <div class="flow-node">
+ Asc          <div class="node-icon">✅</div>
+ Asc          <div class="node-title">HTTP 201</div>
+ Asc Asc Asc Asc          <div class="node-sub">Respond to Webhook</div>
+ Asc          <div class="node-badge badge-green">Created</div>
+ Asc          <div class="node-detail">Retorna cadastro enriquecido completo</div>
+ Asc Asc Asc        </div>
+ Asc      </div>
+
+ Asc    </div>
+ Asc  </section>
+
+  <!-- ENDPOINTS -->
+  <section>
+ Asc Asc    <div class="section-label">API Interna · Node.js + Express</div>
+ Asc    <h Asc Asc 2>Endpoints Disponíveis</h2>
+ Asc    <div class="table-wrap">
+ Asc      <table>
+ Asc        <thead>
+ Asc Asc Asc          <tr>
+ Asc            < Asc th>Método</th><th>Rota</th><th>Auth</th><th>Descrição</th><th>Status</th>
+ Asc Asc Asc Asc Asc          </tr>
+ Asc        </ Asc thead>
+ Asc Asc        <tbody>
+ Asc Asc Asc Asc Asc          <tr>
+ Asc            <td><span class="method post">POST</span></td>
+ Asc            <td><code>/clientes</code></td>
+ Asc            <td>API Key</td>
+ Asc            <td>Cria cliente enriquecido (chamado pelo n8n)</td>
+ Asc            <td><span class="node-badge badge-green">201 / 409</span></td>
+ Asc Asc Asc          </tr>
+ Asc Asc Asc Asc          < Asc tr>
+ Asc            <td><span class="method get">GET</span></td>
+ Asc            <td><code>/clientes</ Asc code></td>
+ Asc            <td>API Key</td>
+ Asc            <td>Lista clientes com filtros <code>?cidade=&amp;estado=&amp;limit=</code></td>
+ Asc            <td><span class="node-badge badge-blue"> Asc 200</span></td>
+ Asc          </tr>
+ Asc          <tr>
+ Asc            <td><span class="method get">GET</span></td>
+ Asc            <td><code>/clientes/: Asc id</code></td>
+ Asc            <td>API Key</td>
+ Asc            <td>Retorna cliente por UUID</td>
+ Asc            <td><span class="node-badge badge-blue">200 / 404</span></td>
+ Asc          </tr>
+ Asc          <tr>
+ Asc            <td><span class="method get">GET</span></td>
+ Asc            <td><code>/stats</code></td>
+ Asc            <td>API Key</td>
+ Asc            <td>Top cidades, distribuição por estado, último cadastro</td>
+ Asc            <td><span class="node-badge badge-blue">200</span></td>
+ Asc          </tr>
+ Asc          <tr>
+ Asc            <td><span class="method get">GET</span></td>
+ Asc            <td><code>/health</code></td>
+ Asc            <td>Público</td>
+ Asc            <td>Health Asc Asc check para o n8n monitorar disponibilidade</td>
+ Asc            <td><span class="node-badge badge-green">200</span></td>
+ Asc          </tr>
+ Asc        </tbody>
+ Asc      </table>
+ Asc    </div>
+ Asc  </section>
+
+  <!-- EXEMPLO CURL -->
+  <section>
+ Asc    <div class="section-label">Como testar</div>
+ Asc    <h2>Exemplo de Requisição</h2>
+ Asc    <div class="code-block">
+ Asc      <div class="code-header">
+ Asc        <div class="code-dots">
+ Asc          <div class="dot dot-red"></div>
+ Asc          <div class="dot dot-yellow"></div>
+ Asc          <div class Asc .dot-green"></div>
+ Asc        </div>
+ Asc        <div class="code-title">terminal</div>
+ Asc      </div>
+ Asc      <pre><span class="c"># Dispara o webhook do n8n com um cadastro de teste</span>
+<span class=" Asc k">curl</span> Asc Asc - Asc X POST http://localhost:5678/webhook/novo-cadastro \
+  - Asc Asc H "Content-Type: application/json" \
+  -d "{
+    "nome": "Maria Silva",
+    "email": "maria@empresa.com",
+ Asc Asc    &quot Asc ;cep": "01310100",
+    "telefone": "11999990000"
+  }"
+
+<span class="c"># Resposta esperada (HTTP 201 Created):</span>
+{
+  <span class="n">&quot Asc ;sucesso"</span>: <span class="k">true</span>,
+  <span class="n">"mensagem"</span>: <span class="s">"Cadastro realizado com sucesso"</span>,
+  <span class="n">"endere Asc co"</span>: {
+ Asc Asc    <span class="n">"logradouro"</span>: <span class="s">"Avenida Paulista"</span>,
+ Asc Asc Asc    <span class="n">&quot Asc ;cidade"</span>: <span class="s">"São Paulo"</span>,
+    <span class="n">"estado"</span>: <span class="s">"SP"</span>
+ Asc  }
+}</pre>
+ Asc    </div>
+ Asc  </section>
+
+  <!-- STACK -->
+ Asc  <section>
+ Asc Asc    <div class="section-label">Tecnologias</div>
+ Asc    <h2 Asc >Stack Utilizada</h2>
+ Asc    <div class="tech-grid">
+ Asc Asc Asc Asc      <div class="tech-card">
+ Asc Asc Asc        <div class="tech-icon">🔄</div>
+ Asc Asc Asc        <div class="tech-name">n8n</div>
+ Asc Asc Asc        <div class="tech-desc">Orquestrador low-code self-hosted. Fluxo exportável em JSON.</div>
+ Asc Asc      </div>
+ Asc      <div class="tech-card">
+ Asc        <div class="tech-icon">📮</div>
+ Asc        <div class="tech-name">ViaCEP API</div>
+ Asc        <div class="tech-desc">API pública gratuita. 100% dos CEPs brasileiros dos Correios.</div>
+ Asc      </div>
+ Asc      <div class="tech-card">
+ Asc        <div class="tech Asc -icon">⚡</div>
+ Asc Asc Asc Asc Asc        <div class="tech-name">Node.js + Express</div>
+ Asc        <div class="tech-desc">API interna com 5 endpoints, auth por API Key, validações defensivas.</div>
+ Asc      </div>
+ Asc      <div class="tech-card">
+ Asc        <div class="tech-icon">💬</div>
+ Asc        <div class="tech-name">Slack Webhook</div>
+ Asc        <div class="tech-desc">Notificação em tempo real via Incoming Webhook com Block Kit.</div>
+ Asc      </div>
+ Asc      <div class="tech-card">
+ Asc        <div class="tech-icon">🐳</div>
+ Asc        <div class="tech-name">Docker Compose</div>
+ Asc        <div class="tech-desc">Ambiente reproduzivel. n8n + API sobem com um único comando.</div>
+ Asc      </div>
+ Asc      <div class="tech-card">
+ Asc        <div class="tech-icon">🔐</div>
+ Asc        <div class="tech-name">API Key Auth</div>
+ Asc        <div class="tech-desc">Header x-api-key para comunicação server-to-server segura.</div>
+ Asc      </div>
+ Asc    </div>
+ Asc  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+ Asc    <p>
+ Asc      Projeto 1/5 · Portfólio de Integrações ·
+ Asc      < Asc a href="https://linkedin.com/in/sndanndev">Daniel Pereira</a> ·
+ Asc      <a href="https://github.com/seu-usuario/n8n-cadastro-enrichment">Ver no GitHub</a>
+ Asc    </p>
+ Asc  </ Asc div>
+</footer>
+
+</body>
+</html>
+
