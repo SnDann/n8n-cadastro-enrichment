@@ -1,0 +1,159 @@
+{
+  "name": "Fluxo CEP -> Endereço -> Notificação",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cep-consulta",
+        "options": {}
+      },
+      "id": "webhook-1",
+      "name": "Webhook CEP",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://viacep.com.br/ws/{{ $json.body.cep }}/json/",
+        "options": {}
+      },
+      "id": "httpreq-1",
+      "name": "ViaCEP API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-1",
+              "leftValue": "={{ $json.erro }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "switch-1",
+      "name": "Verificar Erro",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.N8N_SMTP_USER }}",
+        "toEmail": "seuemail@gmail.com",
+        "subject": "Novo CEP Consultado: {{ $json.cep }}",
+        "text": "CEP: {{ $json.cep }}\nEndereço: {{ $json.logradouro }}, {{ $json.bairro }} - {{ $json.localidade }}/{{ $json.uf }}\n\nVia n8n Fluxo de Integração.",
+        "options": {}
+      },
+      "id": "email-1",
+      "name": "Enviar Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "channel": "geral",
+        "text": "🔍 *CEP Consultado:* {{ $json.cep }}\n📍 *Endereço:* {{ $json.logradouro }}, {{ $json.bairro }} - {{ $json.localidade }}/{{ $json.uf }}\n\n_Automação n8n_",
+        "otherOptions": {}
+      },
+      "id": "slack-1",
+      "name": "Enviar Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [900, 400],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-cred",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.N8N_SMTP_USER }}",
+        "toEmail": "seuemail@gmail.com",
+        "subject": "Erro na consulta CEP: {{ $json.body.cep }}",
+        "text": "CEP inválido: {{ $json.body.cep }}\nErro: CEP não encontrado.",
+        "options": {}
+      },
+      "id": "email-error",
+      "name": "Email Erro",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [900, 500]
+    }
+  ],
+  "connections": {
+    "Webhook CEP": {
+      "main": [
+        [
+          {
+            "node": "ViaCEP API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ViaCEP API": {
+      "main": [
+        [
+          {
+            "node": "Verificar Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Erro": {
+      "main": [
+        [
+          {
+            "node": "Enviar Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Enviar Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}
