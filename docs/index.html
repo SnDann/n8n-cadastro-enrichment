@@ -37,27 +37,27 @@
  /* ── SECTION ── */ section { padding: 60px 0; }
  .section-label { display: flex; align-items: center; gap: 12px; font-size: 11px; font-family: var(--mono); color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 16px;
  }
- .section-label::after { content: ''; flex: 1; height 1px; background: var(--border); } h2 { font-size: 26px; font-weight 700; letter-spacing: -.02em; margin-bottom: 32px; }
+ .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); } h2 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 32px; }
 
  /* ── FLOW DIAGRAM ── */
  .flow { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding-bottom: 12px;
  }
  .flow-step { display: flex; flex-direction: column; animation: fadeIn .5s ease both;
  }
- .flow-step:nth-child(1) { animation-delay: .1 s; }
+ .flow-step:nth-child(1) { animation-delay: .1s; }
  .flow-step:nth-child(3) { animation-delay: .2s; }
  .flow-step:nth-child(5) { animation-delay: .3s; }
  .flow-step:nth-child(7) { animation-delay: .4s; }
- .flow -step:nth-child(9) { animation-delay: .5s; }
+ .flow-step:nth-child(9) { animation-delay: .5s; }
 
- .flow-node { background : var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; min-width: 160px; position: relative; transition: border-color .2s, box-shadow .2s; cursor: default;
+ .flow-node { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; min-width: 160px; position: relative; transition: border-color .2s, box-shadow .2s; cursor: default;
  }
  .flow-node:hover { border-color: var(--accent); box-shadow: 0 0 24px rgba(59,130,246,.15);
  }
  .flow-node:hover .node-detail { opacity: 1; max-height: 80px; margin-top: 10px; }
 
- .node-icon { font-size: 22px ; margin-bottom: 8px; }
- .node-title { font-size: 13px; font-weight: 600 ; line-height: 1.3; }
+ .node-icon { font-size: 22px; margin-bottom: 8px; }
+ .node-title { font-size: 13px; font-weight: 600; line-height: 1.3; }
  .node-sub { font-size: 11px; color: var(--muted); margin-top: 4px; font-family: var(--mono); }
  .node-detail { font-size: 11px; color: var(--accent2); max-height: 0; overflow: hidden; opacity: 0; transition: max-height .3s, opacity .3s, margin-top .3s; line-height: 1.5;
  }
@@ -65,7 +65,7 @@
  .node-badge { display: inline-block; font-size: 10px; font-family: var(--mono); padding: 2px 8px; border-radius: 100px; margin-top: 8px; font-weight: 600;
  }
  .badge-blue { background: rgba(59,130,246,.15); color: var(--accent); border: 1px solid rgba(59,130,246,.3); }
- .badge-green { background: rgba(16,185 ,129,.15); color: var(--green); border: 1px solid rgba(16,185,129,. 3); }
+ .badge-green { background: rgba(16,185,129,.15); color: var(--green); border: 1px solid rgba(16,185,129,.3); }
  .badge-red { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
  .badge-orange { background: rgba(245,158,11,.15); color: var(--orange); border: 1px solid rgba(245,158,11,.3); }
  .badge-purple { background: rgba( 139 ,92,246,.15); color: var(--purple); border: 1px solid rgba(139,92,246,.3); }
@@ -79,7 +79,7 @@
  .branch-item { display: flex; align-items: center; gap: 8px;
  }
  .branch-arrow { font-size: 14px; color: var(--muted); }
- . branch-node { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; min-width: 140px;
+ .branch-node { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; min-width: 140px;
  }
  .branch-node.error { border-color: rgba( 239,68,68,.3); }
  .branch-node.success-branch { border-color: rgba(16,185,129,.2); }
@@ -89,7 +89,7 @@
  } td { padding: 13px 16px; border-bottom: 1px solid rgba(30,45,69,.6); } tr:hover td { background: rgba(59,130,246,.04); }
  .method { font-family: var(--mono); font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 5px; }
  .method.post { background: rgba(16,185,129,.15); color: var(--green); }
- .method.get { background: rgba(59,130,246,.15); color: var (--accent); } code { font-family: var(--mono); font-size: 12px; background: var(--surface2); padding: 3px 8px; border-radius: 5px; color: var(--accent2);
+ .method.get { background: rgba(59,130,246,.15); color: var(--accent); } code { font-family: var(--mono); font-size: 12px; background: var(--surface2); padding: 3px 8px; border-radius: 5px; color: var(--accent2);
  }
 
  /* ── CODE BLOCK ── */
@@ -99,13 +99,13 @@
  }
  .code-title { font-size: 12px; font-family: var(--mono); color: var(--muted); }
  .code-dots { display: flex; gap: 6px; }
- .dot { width: 10px ; height: 10px; border-radius: 50%; }
+ .dot { width: 10px; height: 10px; border-radius: 50%; }
  .dot-red { background: #ff5f57; }
  .dot-yellow { background: #ffbd2e; }
  .dot-green { background: #28c840; } pre { padding: 20px 22px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.7; color: var(--text);
  }
  .k { color: #c792ea; }
- .s { color : #c3e88d; }
+ .s { color: #c3e88d; }
  .n { color: var(--accent2); }
  .c { color: var(--muted); font-style: italic; }
 
@@ -166,7 +166,7 @@
  <section>
  <div class="section-label">Arquitetura</div>
  <h2>Flux o de Automação</h2>
- <p style="color:var(--muted);font-size:14px;margin-bottom:24px;">Passe o mouse sobre cada nó para ver detalhes. Importe o <code>.workflow.json</code> diretamente no n8n.</ p>
+ <p class="section-text">Passe o mouse sobre cada nó para ver detalhes. Importe o <code>.workflow.json</code> diretamente no n8n.</p>
 
  <div class="flow">
 
@@ -231,22 +231,22 @@
  <div class="flow-arrow">→</div>
 
  <div class="flow-step">
- <div class="flow-node" style="min-width:180px;">
+ <div class="flow-node dist">
  <div class="node-icon">📤</div>
  <div class="node-title">Distribuição</div>
  <div class="node-sub">Paralelo</div>
- <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
- <div style="display:flex;align-items:center;gap:8px;">
+ <div class="dist-node">
+ <div class="dist-item">
  <span>✉️</span>
  <div>
- <div class="node-title" style="font-size:12px;">E-mail HTML</div>
+ <div class="node-title small">E-mail HTML</div>
  <div class="node-sub">para o cliente</div>
  </div>
  </div>
- <div style="display:flex;align-items:center;gap:8px;">
+ <div class="dist-item">
  <span>💬</span>
  <div>
- <div class="node-title" style="font-size:12px;">Slack Card</div>
+ <div class="node-title small">Slack Card</div>
  <div class="node-sub">para o time</div>
  </div>
  </div>
