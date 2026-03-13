@@ -4,5 +4,6 @@
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
     "**/node_modules/*/**": true
-  }
+  },
+  "livePreview.defaultPreviewPath": "/docs/index.html"
 }
